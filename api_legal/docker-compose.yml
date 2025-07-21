@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  web_api:
+    build: .
+    command: gunicorn legal_api_ecuador.wsgi:application --bind 0.0.0.0:99
+    ports:
+      - "99:99"
+    volumes:
+#      - ./static:/var/www/vivero/static  # Coincide con STATIC_ROOT
+#      - ./media:/var/www/vivero/media    # Coincide con MEDIA_ROOT
+#      - ./db.sqlite3:/var/www/vivero/db.sqlite3
+      - ./db.sqlite3:/app/db.sqlite3
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  nginx_api:
+    image: nginx:latest
+    ports:
+      - "9999:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+
+    depends_on:
+      - web_api
+    restart: unless-stopped
